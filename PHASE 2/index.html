@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroJet - Book Flights with Style</title>
+  <meta name="description" content="Experience premium flight booking. Best-in-class pricing, custom seat selectors, and transparent fees.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- App Header & Navigation Bar -->
+  <header class="glass-panel navbar">
+    <div class="nav-brand" onclick="returnToHome()" style="cursor: pointer;">
+      <span>✈️ AeroJet</span>
+    </div>
+    
+    <div class="nav-actions">
+      <!-- Currency Selector -->
+      <select class="select-pill" id="currency-selector">
+        <option value="INR">INR (₹)</option>
+        <option value="USD">USD ($)</option>
+        <option value="EUR">EUR (€)</option>
+      </select>
+      
+      <!-- Language Selector -->
+      <select class="select-pill" id="language-selector">
+        <option value="EN">English</option>
+        <option value="HI">Hindi</option>
+        <option value="ES">Español</option>
+        <option value="FR">Français</option>
+      </select>
+      
+      <!-- Theme Toggle -->
+      <button class="btn-icon" id="theme-toggle" title="Toggle Light/Dark Theme">
+        <span>🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero-section">
+    <h1 class="hero-title">Fly Premium. <span>Search Smarter.</span></h1>
+    <p class="hero-subtitle">Search over 100+ daily routes across India with premier airlines. Enjoy premium seat choices and responsive modern planning.</p>
+    
+    <!-- Search Form Widget -->
+    <div class="glass-panel search-widget">
+      <div class="search-tabs">
+        <button type="button" class="tab-btn active" data-type="oneway">One Way</button>
+        <button type="button" class="tab-btn" data-type="roundtrip">Round Trip</button>
+        <button type="button" class="tab-btn" data-type="multicity">Multi City</button>
+      </div>
+      
+      <form id="search-form">
+        <!-- Main Route Leg -->
+        <div class="form-row" id="main-leg-row">
+          <div class="form-group">
+            <label>From</label>
+            <input type="text" id="from-input-0" placeholder="City or Airport" required autocomplete="off">
+            <div id="from-input-0-suggestions" class="autocomplete-suggestions"></div>
+          </div>
+          
+          <div class="form-group">
+            <label>To</label>
+            <input type="text" id="to-input-0" placeholder="City or Airport" required autocomplete="off">
+            <div id="to-input-0-suggestions" class="autocomplete-suggestions"></div>
+          </div>
+          
+          <div class="form-group">
+            <label>Departure Date</label>
+            <input type="date" id="dep-date-0" required>
+          </div>
+          
+          <div class="form-group" id="ret-date-group" style="display: none;">
+            <label>Return Date</label>
+            <input type="date" id="ret-date">
+          </div>
+        </div>
+
+        <!-- Dynamic Multi City Container -->
+        <div class="multicity-wrapper" id="multicity-legs-wrapper" style="display: none; margin-bottom: 1.5rem;">
+          <!-- Extra legs appended here -->
+        </div>
+        
+        <div style="display: flex; justify-content: flex-start; margin-bottom: 1.5rem;">
+          <button type="button" id="btn-add-leg" class="btn-secondary" style="display: none; align-items: center; gap: 0.5rem;">
+            <span>+</span> Add Another Flight
+          </button>
+        </div>
+
+        <!-- Passengers & Cabin Selector -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Passengers</label>
+            <input type="number" id="passengers-count" value="1" min="1" max="9" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Cabin Class</label>
+            <select id="cabin-class">
+              <option value="economy">Economy</option>
+              <option value="business">Business Class</option>
+            </select>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-primary" style="margin-top: 1.5rem; width: 100%;">
+          Search Flights
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Recent and Recommended Section -->
+  <section class="recent-searches-container" id="recent-section" style="margin: 0 auto 4rem auto; width: 100%; max-width: 1100px; padding: 0 2rem;">
+    <h2 class="section-header">🕒 Recent Searches</h2>
+    <div class="search-cards-grid" id="recent-searches-grid" style="margin-bottom: 2rem;">
+      <!-- History loads here -->
+    </div>
+
+    <h2 class="section-header">✨ Popular Destinations</h2>
+    <div class="search-cards-grid" id="recommended-routes-grid">
+      <!-- Recommendations load here -->
+    </div>
+  </section>
+
+  <!-- Flight Results View -->
+  <main class="results-container" id="results-view">
+    <!-- Sidebar Filters -->
+    <aside class="glass-panel filters-sidebar">
+      <div class="filter-section">
+        <div class="filter-title">
+          <span>Max Price</span>
+          <span id="price-range-val" style="color: var(--primary); font-weight: 700;">₹15,000</span>
+        </div>
+        <div class="range-slider-container">
+          <input type="range" class="range-slider" id="price-range" min="1000" max="25000" value="15000">
+          <div class="range-values">
+            <span>Min</span>
+            <span>Max</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">Stops</div>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" class="filter-checkbox filter-stop" value="0"> Non-stop
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" class="filter-checkbox filter-stop" value="1"> 1 Stop
+          </label>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">Airlines</div>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" class="filter-checkbox filter-airline" value="IndiGo"> IndiGo
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" class="filter-checkbox filter-airline" value="Air India"> Air India
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" class="filter-checkbox filter-airline" value="Akasa Air"> Akasa Air
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" class="filter-checkbox filter-airline" value="SpiceJet"> SpiceJet
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" class="filter-checkbox filter-airline" value="Vistara"> Vistara
+          </label>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-title">Departure Time</div>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" class="filter-checkbox filter-time" value="morning"> Morning (05:00 - 12:00)
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" class="filter-checkbox filter-time" value="afternoon"> Afternoon (12:00 - 18:00)
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" class="filter-checkbox filter-time" value="evening"> Evening (18:00 - Midnight)
+          </label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Sorting & Flight Cards list -->
+    <section class="results-list-side">
+      <!-- Sort Bar -->
+      <div class="glass-panel sort-bar">
+        <div class="sort-tabs">
+          <button class="sort-tab active" data-sort="cheapest">Cheapest</button>
+          <button class="sort-tab" data-sort="fastest">Fastest</button>
+          <button class="sort-tab" data-sort="earliest">Earliest Dep</button>
+          <button class="sort-tab" data-sort="rating">Best Rated</button>
+        </div>
+        <span class="results-count" id="results-count-text">0 Flights Found</span>
+      </div>
+
+      <!-- Price Prediction Widget -->
+      <div class="glass-panel price-prediction-widget">
+        <span style="font-size: 1.25rem;">📈</span>
+        <div>
+          <span style="font-size: 0.85rem; font-weight: 600; display: block;">Price Trends Recommendation</span>
+          <span class="prediction-trend-down" style="font-size: 0.75rem;">Prices are expected to drop by 4% over the next 48 hours. Book now!</span>
+        </div>
+      </div>
+
+      <!-- Flights cards container -->
+      <div id="flights-list" style="display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Filled by JS -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Passenger details & checkout view -->
+  <section class="booking-flow-container" id="booking-view">
+    <!-- Steps Indicator -->
+    <div class="step-indicator-bar">
+      <div class="step-wrapper">
+        <div class="step-item active" id="step-1">1</div>
+        <span class="step-label">Travelers</span>
+      </div>
+      <div class="step-wrapper">
+        <div class="step-item" id="step-2">2</div>
+        <span class="step-label">Payment</span>
+      </div>
+      <div class="step-wrapper">
+        <div class="step-item" id="step-3">3</div>
+        <span class="step-label">Confirm</span>
+      </div>
+    </div>
+
+    <div class="booking-panel-layout">
+      <!-- Main Flow Side -->
+      <div class="booking-main-side">
+        <!-- Step 2 forms (passenger input names & seat selectors triggers) -->
+        <form id="passengers-master-form" onsubmit="submitPassengersForm(event)">
+          <div id="booking-forms-section">
+            <h2 style="font-size: 1.25rem; font-weight:600; margin-bottom: 1.5rem;">👤 Traveler Information</h2>
+            
+            <div id="passengers-forms-container">
+              <!-- Rendered via JS based on passenger counts -->
+            </div>
+
+            <!-- Contact Forms -->
+            <div class="glass-panel passenger-input-block" style="margin-top: 1.5rem;">
+              <div class="passenger-block-title">Contact Information</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Email Address</label>
+                  <input type="email" id="contact-email" placeholder="email@airline.com" required>
+                </div>
+                <div class="form-group">
+                  <label>Phone Number</label>
+                  <input type="tel" id="contact-phone" placeholder="98765 43210" required>
+                </div>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn-primary" style="margin-top: 1.5rem; width: 100%;">
+              Proceed to Payment
+            </button>
+          </div>
+        </form>
+
+        <!-- Step 3 Card Payment Simulation Form -->
+        <div id="payment-section" style="display: none;">
+          <h2 style="font-size: 1.25rem; font-weight:600; margin-bottom: 1.5rem;">💳 Payment Methods</h2>
+          <form id="payment-gateway-form" onsubmit="processPayment(event)">
+            <div class="glass-panel passenger-input-block">
+              <div class="passenger-block-title">Credit / Debit Card details</div>
+              
+              <div class="form-row" style="grid-template-columns: 1fr; margin-bottom: 1rem;">
+                <div class="form-group">
+                  <label>Card Number</label>
+                  <input type="text" placeholder="4321 5678 9012 3456" pattern="[0-9 ]{16,19}" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Card Holder Name</label>
+                  <input type="text" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                  <label>Expiry Date</label>
+                  <input type="text" placeholder="MM/YY" pattern="(0[1-9]|1[0-2])\/[0-9]{2}" required>
+                </div>
+                <div class="form-group">
+                  <label>CVV</label>
+                  <input type="password" placeholder="123" pattern="[0-9]{3}" required>
+                </div>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn-primary" id="btn-pay-now" style="margin-top: 1.5rem; width: 100%;">
+              Pay & Confirm Reservation
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Booking Side Panel Summary -->
+      <aside class="glass-panel booking-summary-side">
+        <h3 style="font-size: 1rem; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Booking Details</h3>
+        
+        <div class="summary-flight-mini">
+          <span class="mini-route" id="sum-route">DEL → BOM</span>
+          <span class="mini-schedule" id="sum-flight-details">IndiGo • 6E-202</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div class="price-row">
+            <span style="color: var(--text-muted);">Base Fare</span>
+            <span id="sum-base">₹0</span>
+          </div>
+          <div class="price-row">
+            <span style="color: var(--text-muted);">Seat Fee</span>
+            <span id="sum-seats">₹0</span>
+          </div>
+          <div class="price-row">
+            <span style="color: var(--text-muted);">Taxes & Fees</span>
+            <span>₹450</span>
+          </div>
+          <div class="price-row">
+            <span style="color: var(--text-muted);">Insurance</span>
+            <span id="sum-insurance">₹0</span>
+          </div>
+          <div class="price-row" id="sum-discount-row" style="display: none; color: var(--success); font-weight: 600;">
+            <span>Discount</span>
+            <span id="sum-discount">-₹0</span>
+          </div>
+          <div class="price-row total">
+            <span>Total Price</span>
+            <span id="sum-total">₹0</span>
+          </div>
+        </div>
+
+        <!-- Insurance Option Toggle -->
+        <div class="filter-section" style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+          <label class="checkbox-label" style="font-weight: 500;">
+            <input type="checkbox" onchange="toggleInsurance(this)"> Secure trip (+₹299/traveler)
+          </label>
+        </div>
+
+        <!-- Coupon code checker -->
+        <div class="promo-section">
+          <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Apply Promo Code</label>
+          <div class="promo-input-group">
+            <input type="text" id="promo-input" placeholder="e.g. FLYHIGH20">
+            <button type="button" class="btn-secondary" id="btn-promo-apply" style="padding: 0.4rem 0.8rem;">Apply</button>
+          </div>
+          <span id="promo-message" class="promo-msg"></span>
+          <span style="font-size: 0.65rem; color: var(--text-muted);">Try: FLYHIGH20, WELCOME500, SUPERSTEAL</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Step 4 Confirmation & Ticket generation -->
+  <section class="booking-flow-container" id="confirmation-view" style="display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 1rem;">
+    <div style="font-size: 4rem; color: var(--success); animation: modal-zoom 0.5s ease;">🎉</div>
+    <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">Booking Confirmed!</h1>
+    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin-bottom: 2rem;">Your tickets have been generated successfully. Your details are saved in the boarding pass below.</p>
+    
+    <!-- Render Ticket Target -->
+    <div id="ticket-render-target" style="width: 100%; display: flex; justify-content: center;"></div>
+    
+    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+      <button class="btn-primary" onclick="downloadTicket()">Download / Print Ticket</button>
+      <button class="btn-secondary" onclick="returnToHome()">Book Another Flight</button>
+    </div>
+  </section>
+
+  <!-- Interactive Seat Selection Modal popup -->
+  <div class="modal-overlay" id="seat-modal">
+    <div class="modal-content glass-panel">
+      <div class="modal-header">
+        <h2 class="modal-title">Select Boarding Seat</h2>
+        <button class="modal-close" onclick="closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="seatmap-container">
+          <div class="seatmap-cabin" id="seat-map-grid">
+            <!-- Seat grid rows filled by JS -->
+          </div>
+          <div class="seat-legend" id="seat-legend-container">
+            <!-- Legend indicators -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="glass-panel">
+    <div class="footer-content">
+      <div class="footer-brand-section">
+        <span class="footer-logo">✈️ AeroJet</span>
+        <p class="footer-desc">Next generation airline booking experience. We make search simple, fast, and transparent. Designed for flyers worldwide.</p>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">Services</span>
+        <div class="footer-links">
+          <a href="#">Flight Search</a>
+          <a href="#">Group Bookings</a>
+          <a href="#">Corporate Flyers</a>
+          <a href="#">AeroJet Privilege</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">Support</span>
+        <div class="footer-links">
+          <a href="#">Help Center</a>
+          <a href="#">Refund Policies</a>
+          <a href="#">Baggage Guidelines</a>
+          <a href="#">Contact Support</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">Legal</span>
+        <div class="footer-links">
+          <a href="#">Terms & Conditions</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Grievance Redressal</a>
+          <a href="#">Citizen Charter</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 AeroJet Airlines System. All rights reserved. Flight search powered by mock JSON datasets.</p>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

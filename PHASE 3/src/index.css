@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-secondary: #0EA5E9;
+  --color-accent: #14B8A6;
+  --color-accent-hover: #0F766E;
+  --color-dark-bg: #0B0F19;
+  
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Poppins', sans-serif;
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-dark-bg dark:text-slate-100 min-h-screen flex flex-col;
+    background-image: linear-gradient(135deg, #EFF6FF 0%, #F0FDFA 100%);
+    background-attachment: fixed;
+  }
+  
+  body.dark {
+    background-image: linear-gradient(135deg, #090D16 0%, #061F2D 100%);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 dark:bg-slate-800 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-600;
+}
+
+/* Custom Glassmorphism Classes */
+.glass-panel {
+  @apply bg-white/75 dark:bg-slate-900/65 backdrop-blur-xl border border-white/60 dark:border-white/5 shadow-sm shadow-blue-500/5 transition-all duration-300;
+}
+.glass-panel:hover {
+  @apply shadow-lg shadow-blue-500/10;
+}
+
+/* Custom simulated barcode */
+.barcode-simulated {
+  height: 50px;
+  width: 200px;
+  background: repeating-linear-gradient(
+    90deg,
+    currentColor,
+    currentColor 2px,
+    transparent 2px,
+    transparent 6px,
+    currentColor 6px,
+    currentColor 10px
+  );
+  opacity: 0.75;
+}
+
+/* Custom animations helper */
+@keyframes loading-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, currentColor 25%, rgba(255,255,255,0.1) 50%, currentColor 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+/* Print Overrides for Boarding Pass Ticket */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .printable-area, .printable-area * {
+    visibility: visible;
+  }
+  .printable-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}
